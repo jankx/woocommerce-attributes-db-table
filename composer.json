@@ -1,0 +1,15 @@
+{
+    "name": "jankx/woocommerce-attributes-db-table",
+    "autoload": {
+        "psr-4": {
+            "Jankx\\Woocommerce\\Attributes\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Puleeno Nguyen",
+            "email": "puleeno@gmail.com"
+        }
+    ],
+    "require": {}
+}
