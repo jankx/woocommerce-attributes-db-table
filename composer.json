@@ -3,13 +3,18 @@
     "autoload": {
         "psr-4": {
             "Jankx\\Woocommerce\\Attributes\\": "src/"
-        }
+        },
+        "files": [
+            "./bootstraper.php"
+        ]
     },
+    "license": "MIT",
     "authors": [
         {
             "name": "Puleeno Nguyen",
             "email": "puleeno@gmail.com"
         }
     ],
-    "require": {}
+    "require": {},
+    "minimum-stability": "dev"
 }
