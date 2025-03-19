@@ -5,7 +5,7 @@
             "Jankx\\Woocommerce\\Attributes\\": "src/"
         },
         "files": [
-            "./bootstraper.php"
+            "./woocommerce-attributes-db-table.php"
         ]
     },
     "license": "MIT",
