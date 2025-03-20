@@ -4,6 +4,8 @@ namespace Jankx\Woocommerce\Attributes;
 
 class Database
 {
+    protected static $dbPrefix = null;
+
     public function createTables()
     {
         "
@@ -21,6 +23,7 @@ CREATE TABLE `xvn2_jankx_woo_attributes` (
 
         "ALTER TABLE `xvn2_jankx_woo_attributes`
   ADD PRIMARY KEY (`product_id`,`attribute`,`value`),
+  ADD INDEX(`product_id`, `attribute`),
   ADD KEY `attribute` (`attribute`);";
     }
 
@@ -31,5 +34,18 @@ CREATE TABLE `xvn2_jankx_woo_attributes` (
     public static function getWpdb()
     {
         return $GLOBALS['wpdb'];
+    }
+
+    public static function getDbPrefix()
+    {
+        if (is_null(static::$dbPrefix)) {
+            static::$dbPrefix =  static::getWpdb()->prefix;
+        }
+        return static::$dbPrefix;
+    }
+
+    public static function getAttributeTable()
+    {
+        return sprintf('%sjankx_woo_attributes', static::getDbPrefix());
     }
 }

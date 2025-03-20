@@ -66,10 +66,16 @@ class Hooks
      * Summary of resetAttributeByProductAndAttribute
      * @param mixed $productId
      * @param mixed $attribute
-     * @return void
+     * @return bool|int
      */
     protected function resetAttributeByProductAndAttribute($productId, $attribute)
     {
+        $wpdb = Database::getWpdb();
+
+        return $wpdb->delete($wpdb->prefix . 'jankx_woo_attributes', [
+            'product_id' => $productId,
+            'attribute' => $attribute,
+        ]);
     }
 
 
@@ -102,16 +108,26 @@ class Hooks
                 $jankxAttribute->variation = array_get($data, 'variation', false);
 
                 $currentAttribute = isset($currentValues[$option]) ? $currentValues[$option] : null;
-                $jankxAttribute->createdAt = !is_null($currentAttribute) ? $currentAttribute->created_at : current_time('mysql');
-                $jankxAttribute->updatedAt = current_time('mysql');
+                $jankxAttribute->createdOn = !is_null($currentAttribute) ? $currentAttribute->created_at : current_time('mysql');
+                $jankxAttribute->updatedOn = current_time('mysql');
+
+                $jankxAttribute->isTerm = strpos($attributeName, 'pa_') === 0;
 
                 $jankxAttributes[] = $jankxAttribute;
             }
         }
 
+        // reset db to clean attributes before update if nedded
+        foreach ($attributes as $attribute) {
+            $this->resetAttributeByProductAndAttribute(
+                $product->get_id(),
+                $attribute
+            );
+        }
+
         // save to DB
-        foreach ($jankxAttributes as $attribute) {
-            $attribute->save();
+        foreach ($jankxAttributes as $jankxAttribute) {
+            $jankxAttribute->save();
         }
     }
 }

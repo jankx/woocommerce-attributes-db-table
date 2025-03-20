@@ -17,9 +17,9 @@ class Attribute
 
     protected $variation;
 
-    protected $createdAt;
+    protected $createdOn;
 
-    protected $updatedAt;
+    protected $updatedOn;
 
 
     public function __construct($productId, $atribute, $value)
@@ -39,22 +39,17 @@ class Attribute
     public function checkExists()
     {
         $wpdb = Database::getWpdb();
-        dd($wpdb->prepare(
-            "SELECT COUNT(*) FROM {$wpdb->prefix}jankx_woo_attributes
-                    WHERE {$wpdb->prefix}jankx_woo_attributes.product_id=%d, {$wpdb->prefix}jankx_woo_attributes.attribute=%s",
-            $this->getProductId(),
-            $this->getAttribute()
-        ));
-        $isExists = $wpdb->get_var(
+        $records = $wpdb->get_var(
             $wpdb->prepare(
                 "SELECT COUNT(*) FROM {$wpdb->prefix}jankx_woo_attributes
-                    WHERE {$wpdb->prefix}jankx_woo_attributes.product_id=%d, {$wpdb->prefix}jankx_woo_attributes.attribute=%s",
+                    WHERE {$wpdb->prefix}jankx_woo_attributes.product_id=%d AND {$wpdb->prefix}jankx_woo_attributes.attribute=%s AND {$wpdb->prefix}jankx_woo_attributes.value=%s",
                 $this->getProductId(),
-                $this->getAttribute()
+                $this->getAttribute(),
+                $this->getValue()
             )
         );
 
-        dd($isExists);
+        return $records > 0;
     }
 
 
@@ -68,9 +63,56 @@ class Attribute
         return $this->attribute;
     }
 
+    public function getValue()
+    {
+        return $this->value;
+    }
+
+    /**
+     * Summary of save
+     * @return bool|int
+     */
     public function save()
     {
-        if ($this->checkExists()) {
+        $wpdb = Database::getWpdb();
+        try {
+            if ($this->checkExists()) {
+                return $wpdb->update(
+                    Database::getAttributeTable(),
+                    [
+                    'version' => $this->version,
+                    'position' => $this->position,
+                    'variation' => $this->variation,
+                    'created_on' => $this->createdOn,
+                    'updated_on' => $this->updatedOn,
+                    'is_term' => $this->isTerm
+                    ],
+                    [
+                    'product_id' => $this->productId,
+                    'attribute' => $this->attribute,
+                    'value' => $this->value
+                    ]
+                );
+            } else {
+                return $wpdb->insert(
+                    Database::getAttributeTable(),
+                    [
+                    'product_id' => $this->productId,
+                    'attribute' => $this->attribute,
+                    'value' => $this->value,
+
+                    'is_term' => $this->isTerm,
+
+                    'version' => $this->version,
+                    'position' => $this->position,
+                    'variation' => $this->variation,
+                    'created_on' => $this->createdOn,
+                    'updated_on' => $this->updatedOn,
+                    ],
+                );
+            }
+        } catch (\Exception $e) {
+            error_log($e->getMessage() . PHP_EOL . $e->getTraceAsString());
         }
     }
 }
