@@ -63,21 +63,25 @@ class Hooks
 
 
     /**
-     * Summary of resetAttributeByProductAndAttribute
+     * Summary of resetAttributesByProductAndAttribute
      * @param mixed $productId
      * @param mixed $attribute
      * @return bool|int
      */
-    protected function resetAttributeByProductAndAttribute($productId, $attribute)
+    protected function resetAttributesByProductAndAttribute($productId, $attribute)
     {
         $wpdb = Database::getWpdb();
-
-        return $wpdb->delete($wpdb->prefix . 'jankx_woo_attributes', [
+        return $wpdb->delete(Database::getAttributeTable(), [
             'product_id' => $productId,
             'attribute' => $attribute,
         ]);
     }
 
+
+    protected function parseOptionsFromValue($value)
+    {
+        return explode('|', $value);
+    }
 
     /**
      * Summary of saveMetasOnly
@@ -86,47 +90,54 @@ class Hooks
      */
     public function saveMetasOnly($product)
     {
-        $changeset = $product->get_changes();
-        $attributes = array_get($changeset, 'attributes', []);
+        $productAttributesCollection = get_post_meta($product->get_id(), '_product_attributes');
         $jankxAttributes = [];
 
-        foreach ($attributes as $attribute) {
-            $data = $attribute->get_data();
-            $attributeName = array_get($data, 'name');
-            if (empty($attributeName)) {
-                continue;
+        foreach ($productAttributesCollection as $attributes) {
+            foreach ($attributes as $attributeName => $data) {
+                if (empty($attributeName)) {
+                    continue;
+                }
+                $isTerm = strpos($attributeName, 'pa_') === 0;
+
+
+                $options = $isTerm
+                    ? wp_get_post_terms($product->get_id(), $attributeName, ['fields' => 'ids'])
+                    : $this->parseOptionsFromValue(array_get($data, 'value', ''));
+
+                $currentValues = $this->fetchAttributesByProductAndAttribute($product->get_id(), $attributeName);
+
+
+                foreach ($options as $option) {
+                    $jankxAttribute = new Attribute($product->get_id(), $attributeName, $option);
+
+                    $jankxAttribute->isTerm = $isTerm;
+                    $jankxAttribute->version = jankx_woocommerce_ver_check();
+                    $jankxAttribute->position = array_get($data, 'position');
+                    $jankxAttribute->variation = array_get($data, 'variation', false);
+
+                    $currentAttribute = isset($currentValues[$option]) ? $currentValues[$option] : null;
+                    $jankxAttribute->createdOn = !is_null($currentAttribute)
+                        ? $currentAttribute->created_at
+                        : current_time('mysql');
+                    if (is_null($jankxAttribute->createdOn)) {
+                        $jankxAttribute->createdOn = current_time('mysql');
+                    }
+                    $jankxAttribute->updatedOn = current_time('mysql');
+
+                    $jankxAttributes[] = $jankxAttribute;
+                }
             }
-
-            $options = array_get($data, 'options', []);
-            $currentValues = $this->fetchAttributesByProductAndAttribute($product->get_id(), $attributeName);
-
-            foreach ($options as $option) {
-                $jankxAttribute = new Attribute($product->get_id(), $attributeName, $option);
-
-                $jankxAttribute->version = jankx_woocommerce_ver_check();
-                $jankxAttribute->position = array_get($data, 'position');
-                $jankxAttribute->variation = array_get($data, 'variation', false);
-
-                $currentAttribute = isset($currentValues[$option]) ? $currentValues[$option] : null;
-                $jankxAttribute->createdOn = !is_null($currentAttribute) ? $currentAttribute->created_at : current_time('mysql');
-                $jankxAttribute->updatedOn = current_time('mysql');
-
-                $jankxAttribute->isTerm = strpos($attributeName, 'pa_') === 0;
-
-                $jankxAttributes[] = $jankxAttribute;
-            }
-        }
-
-        // reset db to clean attributes before update if nedded
-        foreach ($attributes as $attribute) {
-            $this->resetAttributeByProductAndAttribute(
-                $product->get_id(),
-                $attribute
-            );
         }
 
         // save to DB
+        $resetedAttribute = [];
         foreach ($jankxAttributes as $jankxAttribute) {
+            $resetKey = sprintf('%d-%s', $jankxAttribute->getProductId(), $jankxAttribute->getAttribute());
+            if (!isset($resetedAttribute[$resetKey])) {
+                $this->resetAttributesByProductAndAttribute($jankxAttribute->getProductId(), $jankxAttribute->getAttribute());
+                $resetedAttribute[$resetKey] = true;
+            }
             $jankxAttribute->save();
         }
     }
