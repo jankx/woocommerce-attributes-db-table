@@ -9,6 +9,10 @@ class Attribute
 
     protected $value;
 
+    protected $regularPrice;
+
+    protected $salePrice;
+
     protected $isTerm = false;
 
     protected $version;
@@ -90,33 +94,33 @@ class Attribute
                     Database::getAttributeTable(),
                     [
                     'version' => $this->version,
-                    'position' => $this->position,
-                    'variation' => $this->variation,
-                    'created_on' => $this->createdOn,
-                    'updated_on' => $this->updatedOn,
-                    'is_term' => $this->isTerm
+                        'position' => $this->position,
+                        'variation' => $this->variation,
+                        'created_on' => $this->createdOn,
+                        'updated_on' => $this->updatedOn,
+                        'is_term' => $this->isTerm
                     ],
                     [
-                    'product_id' => $this->productId,
-                    'attribute' => $this->attribute,
-                    'value' => $this->value
+                        'product_id' => $this->productId,
+                        'attribute' => $this->attribute,
+                        'value' => $this->value
                     ]
                 );
             } else {
                 return $wpdb->insert(
                     Database::getAttributeTable(),
                     [
-                    'product_id' => $this->productId,
-                    'attribute' => $this->attribute,
-                    'value' => $this->value,
+                        'product_id' => $this->productId,
+                        'attribute' => $this->attribute,
+                        'value' => $this->value,
 
-                    'is_term' => $this->isTerm,
+                        'is_term' => $this->isTerm,
 
-                    'version' => $this->version,
-                    'position' => $this->position,
-                    'variation' => $this->variation,
-                    'created_on' => $this->createdOn,
-                    'updated_on' => $this->updatedOn,
+                        'version' => $this->version,
+                        'position' => $this->position,
+                        'variation' => $this->variation,
+                        'created_on' => $this->createdOn,
+                        'updated_on' => $this->updatedOn,
                     ],
                 );
             }
