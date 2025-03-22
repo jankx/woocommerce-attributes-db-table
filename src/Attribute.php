@@ -15,6 +15,8 @@ class Attribute
 
     protected $isTerm = false;
 
+    protected $termId;
+
     protected $version;
 
     protected $position;
@@ -98,7 +100,8 @@ class Attribute
                         'variation' => $this->variation,
                         'created_on' => $this->createdOn,
                         'updated_on' => $this->updatedOn,
-                        'is_term' => $this->isTerm
+                        'is_term' => $this->isTerm,
+                        'term_id' => $this->getTermId(),
                     ],
                     [
                         'product_id' => $this->productId,
@@ -115,6 +118,7 @@ class Attribute
                         'value' => $this->value,
 
                         'is_term' => $this->isTerm,
+                        'term_id' => $this->getTermId(),
 
                         'version' => $this->version,
                         'position' => $this->position,
@@ -127,5 +131,19 @@ class Attribute
         } catch (\Exception $e) {
             error_log($e->getMessage() . PHP_EOL . $e->getTraceAsString());
         }
+    }
+
+
+    public function isTerm()
+    {
+        return $this->isTerm;
+    }
+
+    public function getTermId()
+    {
+        if (!$this->isTerm()) {
+            return null;
+        }
+        return $this->termId;
     }
 }

@@ -102,19 +102,20 @@ class Hooks
 
 
                 $options = $isTerm
-                    ? wp_get_post_terms($product->get_id(), $attributeName, ['fields' => 'ids'])
+                    ? wp_get_post_terms($product->get_id(), $attributeName, ['fields' => 'id=>slug'])
                     : $this->parseOptionsFromValue(array_get($data, 'value', ''));
 
                 $currentValues = $this->fetchAttributesByProductAndAttribute($product->get_id(), $attributeName);
 
 
-                foreach ($options as $option) {
+                foreach ($options as $termId => $option) {
                     $jankxAttribute = new Attribute($product->get_id(), $attributeName, $option);
 
                     $jankxAttribute->isTerm = $isTerm;
                     $jankxAttribute->version = jankx_woocommerce_ver_check();
                     $jankxAttribute->position = array_get($data, 'position');
                     $jankxAttribute->variation = array_get($data, 'variation', false);
+                    $jankxAttribute->termId = $isTerm ? $termId : null;
 
                     $currentAttribute = isset($currentValues[$option]) ? $currentValues[$option] : null;
                     $jankxAttribute->createdOn = !is_null($currentAttribute)
