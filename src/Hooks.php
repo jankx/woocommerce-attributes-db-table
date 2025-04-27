@@ -119,8 +119,9 @@ class Hooks
                         $jankxAttribute->termId = $isTerm ? $termId : null;
 
                         $currentAttribute = isset($currentValues[$option]) ? $currentValues[$option] : null;
+
                         $jankxAttribute->createdOn = !is_null($currentAttribute)
-                            ? $currentAttribute->created_at
+                            ? $currentAttribute->created_on
                             : current_time('mysql');
                         if (is_null($jankxAttribute->createdOn)) {
                             $jankxAttribute->createdOn = current_time('mysql');
