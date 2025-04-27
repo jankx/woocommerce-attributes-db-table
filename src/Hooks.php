@@ -93,40 +93,42 @@ class Hooks
         $productAttributesCollection = get_post_meta($product->get_id(), '_product_attributes');
         $jankxAttributes = [];
 
-        foreach ($productAttributesCollection as $attributes) {
-            foreach ($attributes as $attributeName => $data) {
-                if (empty($attributeName)) {
-                    continue;
-                }
-                $isTerm = strpos($attributeName, 'pa_') === 0;
-
-
-                $options = $isTerm
-                    ? wp_get_post_terms($product->get_id(), $attributeName, ['fields' => 'id=>slug'])
-                    : $this->parseOptionsFromValue(array_get($data, 'value', ''));
-
-                $currentValues = $this->fetchAttributesByProductAndAttribute($product->get_id(), $attributeName);
-
-
-                foreach ($options as $termId => $option) {
-                    $jankxAttribute = new Attribute($product->get_id(), $attributeName, $option);
-
-                    $jankxAttribute->isTerm = $isTerm;
-                    $jankxAttribute->version = jankx_woocommerce_ver_check();
-                    $jankxAttribute->position = array_get($data, 'position');
-                    $jankxAttribute->variation = array_get($data, 'variation', false);
-                    $jankxAttribute->termId = $isTerm ? $termId : null;
-
-                    $currentAttribute = isset($currentValues[$option]) ? $currentValues[$option] : null;
-                    $jankxAttribute->createdOn = !is_null($currentAttribute)
-                        ? $currentAttribute->created_at
-                        : current_time('mysql');
-                    if (is_null($jankxAttribute->createdOn)) {
-                        $jankxAttribute->createdOn = current_time('mysql');
+        if (is_array($productAttributesCollection)) {
+            foreach ($productAttributesCollection as $attributes) {
+                foreach ($attributes as $attributeName => $data) {
+                    if (empty($attributeName)) {
+                        continue;
                     }
-                    $jankxAttribute->updatedOn = current_time('mysql');
+                    $isTerm = strpos($attributeName, 'pa_') === 0;
 
-                    $jankxAttributes[] = $jankxAttribute;
+
+                    $options = $isTerm
+                        ? wp_get_post_terms($product->get_id(), $attributeName, ['fields' => 'id=>slug'])
+                        : $this->parseOptionsFromValue(array_get($data, 'value', ''));
+
+                    $currentValues = $this->fetchAttributesByProductAndAttribute($product->get_id(), $attributeName);
+
+
+                    foreach ($options as $termId => $option) {
+                        $jankxAttribute = new Attribute($product->get_id(), $attributeName, $option);
+
+                        $jankxAttribute->isTerm = $isTerm;
+                        $jankxAttribute->version = jankx_woocommerce_ver_check();
+                        $jankxAttribute->position = array_get($data, 'position');
+                        $jankxAttribute->variation = array_get($data, 'variation', false);
+                        $jankxAttribute->termId = $isTerm ? $termId : null;
+
+                        $currentAttribute = isset($currentValues[$option]) ? $currentValues[$option] : null;
+                        $jankxAttribute->createdOn = !is_null($currentAttribute)
+                            ? $currentAttribute->created_at
+                            : current_time('mysql');
+                        if (is_null($jankxAttribute->createdOn)) {
+                            $jankxAttribute->createdOn = current_time('mysql');
+                        }
+                        $jankxAttribute->updatedOn = current_time('mysql');
+
+                        $jankxAttributes[] = $jankxAttribute;
+                    }
                 }
             }
         }
