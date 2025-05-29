@@ -17,7 +17,7 @@ class Hooks
 
     public function registerHooks()
     {
-        add_action('woocommerce_process_product_meta', [$this, 'saveMetas'], 10, 4);
+        // add_action('woocommerce_process_product_meta', [$this, 'saveMetas'], 10, 4);
 
         do_action('delete_post_meta', 10, 3);
 
