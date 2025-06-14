@@ -2,6 +2,10 @@
 
 namespace Jankx\Woocommerce\Attributes;
 
+if (!defined('ABSPATH')) {
+    exit('Cheatin huh?');
+}
+
 class Database
 {
     protected static $dbPrefix = null;

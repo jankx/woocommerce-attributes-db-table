@@ -1,4 +1,7 @@
 <?php
+if (!defined('ABSPATH')) {
+    exit('Cheatin huh?');
+}
 
 use Jankx\Woocommerce\Attribute\Database;
 class Jankx_Woocommerce_Attributes_Installer {

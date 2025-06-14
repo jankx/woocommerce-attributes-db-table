@@ -2,6 +2,10 @@
 
 namespace Jankx\WooCommerce\Attributes;
 
+if (!defined('ABSPATH')) {
+    exit('Cheatin huh?');
+}
+
 class Attribute
 {
     protected $productId;

@@ -2,6 +2,10 @@
 
 namespace Jankx\Woocommerce\Attributes;
 
+if (!defined('ABSPATH')) {
+    exit('Cheatin huh?');
+}
+
 use Automattic\WooCommerce\Internal\ProductAttributesLookup\LookupDataStore as ProductAttributesLookupDataStore;
 
 class Hooks
