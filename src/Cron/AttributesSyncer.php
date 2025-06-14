@@ -3,7 +3,7 @@
 namespace Jankx\WooCommerce\Attributes\Cron;
 
 if (!defined('ABSPATH')) {
-    exit('Cheatin huh?');
+    exit('Cheating huh?');
 }
 
 class AttributesSyncer

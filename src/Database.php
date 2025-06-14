@@ -3,7 +3,7 @@
 namespace Jankx\Woocommerce\Attributes;
 
 if (!defined('ABSPATH')) {
-    exit('Cheatin huh?');
+    exit('Cheating huh?');
 }
 
 class Database
